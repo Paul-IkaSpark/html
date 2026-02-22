@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Персональный Калькулятор Энергий</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .form-section {
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .date-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr 2fr;
+            gap: 10px;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .results {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .results.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .personal-info {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .personal-info h2 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .personal-info p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .cheatsheet {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+            font-family: monospace;
+            white-space: pre-line;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        .controls-bar {
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .expand-all-btn {
+            background: #6c757d;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            width: auto;
+        }
+
+        .expand-all-btn:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        .accordion-item {
+            margin-bottom: 15px;
+        }
+
+        .result-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 15px;
+            padding: 25px;
+            border-left: 5px solid;
+            transition: all 0.3s ease;
+        }
+
+        .result-card.code-1 { border-color: #e74c3c; }
+        .result-card.code-2 { border-color: #e67e22; }
+        .result-card.code-3 { border-color: #f39c12; }
+        .result-card.code-4 { border-color: #2ecc71; }
+        .result-card.code-5 { border-color: #3498db; }
+        .result-card.code-6 { border-color: #9b59b6; }
+        .result-card.code-7 { border-color: #8e44ad; }
+        .result-card.code-8 { border-color: #34495e; }
+        .result-card.code-9 { border-color: #ecf0f1; }
+
+        .accordion-header {
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .accordion-header:hover {
+            transform: translateX(5px);
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .result-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .result-value {
+            font-size: 32px;
+            font-weight: 900;
+            color: #764ba2;
+        }
+
+        .result-description {
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .result-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .meta-item {
+            background: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 13px;
+        }
+
+        .meta-label {
+            color: #999;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+        }
+
+        .meta-value {
+            color: #333;
+            font-weight: 600;
+        }
+
+        .expand-icon {
+            font-size: 20px;
+            transition: transform 0.3s ease;
+            display: inline-block;
+        }
+
+        .expand-icon.rotated {
+            transform: rotate(180deg);
+        }
+
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease;
+        }
+
+        .accordion-content.active {
+            max-height: 5000px;
+        }
+
+        .details-section {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 2px dashed #e0e0e0;
+        }
+
+        .actions-section {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 8px;
+        }
+
+        .actions-title {
+            font-weight: 700;
+            color: #856404;
+            margin-bottom: 10px;
+            font-size: 15px;
+        }
+
+        .actions-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .actions-list li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        .actions-list li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .tip-box {
+            background: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+            color: #0c5460;
+        }
+
+        .warning-box {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+            color: #721c24;
+        }
+
+        .ritual-section {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-top: 30px;
+        }
+
+        .ritual-section h2 {
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        .ritual-step {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 10px;
+            border-left: 4px solid white;
+        }
+
+        .ritual-step h3 {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .btn-restart {
+            background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+            margin-top: 20px;
+        }
+
+        .color-preview {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: inline-block;
+            vertical-align: middle;
+            margin-left: 10px;
+            border: 2px solid white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        @media (max-width: 600px) {
+            .content {
+                padding: 25px;
+            }
+
+            .date-inputs {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .result-value {
+                font-size: 24px;
+            }
+
+            .result-meta {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔮 Персональный Калькулятор Энергий</h1>
+            <p>Узнайте свои уникальные коды и частоты на основе даты рождения</p>
+        </div>
+
+        <div class="content">
+            <div class="form-section" id="formSection">
+                <div class="form-group">
+                    <label for="name">Ваше имя</label>
+                    <input type="text" id="name" placeholder="Например: Екатерина" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Дата рождения</label>
+                    <div class="date-inputs">
+                        <input type="number" id="day" placeholder="День" min="1" max="31" required>
+                        <input type="number" id="month" placeholder="Месяц" min="1" max="12" required>
+                        <input type="number" id="year" placeholder="Год" min="1900" max="2024" required>
+                    </div>
+                </div>
+
+                <button onclick="calculate()">Рассчитать мои энергии</button>
+            </div>
+
+            <div class="results" id="results">
+                <div class="personal-info" id="personalInfo"></div>
+                <div id="resultsContainer"></div>
+                <button class="btn-restart" onclick="restart()">Рассчитать заново</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Таблица букв для расчета Частоты Имени
+        const letterValues = {
+            'А': 1, 'Б': 2, 'В': 3, 'Г': 4, 'Д': 5, 'Е': 6, 'Ё': 7, 'Ж': 8, 'З': 9,
+            'И': 1, 'Й': 2, 'К': 3, 'Л': 4, 'М': 5, 'Н': 6, 'О': 7, 'П': 8, 'Р': 9,
+            'С': 1, 'Т': 2, 'У': 3, 'Ф': 4, 'Х': 5, 'Ц': 6, 'Ч': 7, 'Ш': 8, 'Щ': 9,
+            'Ъ': 1, 'Ы': 2, 'Ь': 3, 'Э': 4, 'Ю': 5, 'Я': 6
+        };
+
+        // Описания кодов ПКК
+        const pkkDescriptions = {
+            1: { name: 'ИНИЦИАТОР', freq: '396 Гц', mantra: 'ОМ-ЛАМ-ХУМ', color: 'Красный', action: 'Вы материализуете через НАЧИНАНИЕ' },
+            2: { name: 'ГАРМОНИЗАТОР', freq: '417 Гц', mantra: 'ОМ-ВАМ-ХУМ', color: 'Оранжевый', action: 'Вы материализуете через СОТРУДНИЧЕСТВО' },
+            3: { name: 'ТВОРЕЦ', freq: '528 Гц', mantra: 'ОМ-РАМ-ХУМ', color: 'Жёлтый', action: 'Вы материализуете через ТВОРЧЕСТВО' },
+            4: { name: 'СТРОИТЕЛЬ', freq: '639 Гц', mantra: 'ОМ-ЯМ-ХУМ', color: 'Зелёный', action: 'Вы материализуете через СТРУКТУРУ' },
+            5: { name: 'ТРАНСФОРМАТОР', freq: '741 Гц', mantra: 'ОМ-ХАМ-ХУМ', color: 'Голубой', action: 'Вы материализуете через ИЗМЕНЕНИЕ' },
+            6: { name: 'ЦЕЛИТЕЛЬ', freq: '852 Гц', mantra: 'ОМ-КШАМ-ХУМ', color: 'Синий', action: 'Вы материализуете через СЛУЖЕНИЕ' },
+            7: { name: 'МИСТИК', freq: '963 Гц', mantra: 'ОМ-АУМ-ХУМ', color: 'Фиолетовый', action: 'Вы материализуете через ЗНАНИЕ' },
+            8: { name: 'МАСТЕР МАТЕРИИ', freq: '174 Гц', mantra: 'ОМ-ГАМ-ХУМ', color: 'Чёрный/Золотой', action: 'Вы материализуете через МОЩЬ' },
+            9: { name: 'ЗАВЕРШИТЕЛЬ', freq: '285 Гц', mantra: 'ОМ-АХ-ХУМ', color: 'Белый', action: 'Вы материализуете через ОТПУСКАНИЕ' }
+        };
+
+        // Описания священных форм
+        const formDescriptions = {
+            0: { name: 'КРУГ', type: 'Целостная', power: 'Вы видите ВСЮ КАРТИНУ сразу', use: 'Стратегия, видение, системное мышление' },
+            1: { name: 'ТОЧКА', type: 'Лазерная', power: 'Абсолютный фокус на ОДНОМ', use: 'Решение одной сложной задачи' },
+            2: { name: 'ЛИНИЯ', type: 'Сравнительная', power: 'Вы видите СВЯЗИ между вещами', use: 'Анализ, исследование, логика' },
+            3: { name: 'ТРЕУГОЛЬНИК', type: 'Динамическая', power: 'Вы СИНТЕЗИРУЕТЕ новое из разного', use: 'Творчество, инновации' },
+            4: { name: 'КВАДРАТ', type: 'Структурированная', power: 'Вы СТРОИТЕ систематически', use: 'Планирование, организация' },
+            5: { name: 'ПЕНТАГРАММА', type: 'Многомерная', power: 'Вы ЧУВСТВУЕТЕ правильное направление', use: 'Интуитивное решение' },
+            6: { name: 'ГЕКСАГРАММА', type: 'Балансирующая', power: 'Вы ГАРМОНИЗИРУЕТЕ противоположности', use: 'Управление конфликтами' },
+            7: { name: 'СЕМИУГОЛЬНИК', type: 'Трансцендентная', power: 'Вы ВИДИТЕ скрытое', use: 'Исследование тайн, эзотерика' },
+            8: { name: 'ОКТАЭДР', type: 'Мощная', power: 'Вы МЕНЯЕТЕ реальность', use: 'Материализация, магия' },
+            9: { name: 'ЭННЕАГРАММА', type: 'Универсальная', power: 'Вы ИНТЕГРИРУЕТЕ всё в целое', use: 'Завершение проектов, синтез' }
+        };
+
+        // Описания цветов фокуса
+        const colorDescriptions = {
+            1: { color: 'КРАСНЫЙ', hex: '#e74c3c', effect: 'Энергия, действие, скорость', type: 'Взрывная, интенсивная' },
+            2: { color: 'ОРАНЖЕВЫЙ', hex: '#e67e22', effect: 'Креативность, энтузиазм, радость', type: 'Творческая, игривая' },
+            3: { color: 'ЖЁЛТЫЙ', hex: '#f39c12', effect: 'Ясность, оптимизм, интеллект', type: 'Аналитическая, логическая' },
+            4: { color: 'ЗЕЛЁНЫЙ', hex: '#2ecc71', effect: 'Баланс, гармония, рост', type: 'Устойчивая, длительная' },
+            5: { color: 'БИРЮЗОВЫЙ', hex: '#1abc9c', effect: 'Коммуникация, выражение, поток', type: 'Коммуникативная, социальная' },
+            6: { color: 'ГОЛУБОЙ', hex: '#3498db', effect: 'Спокойствие, ясность, истина', type: 'Глубокая, медитативная' },
+            7: { color: 'ФИОЛЕТОВЫЙ', hex: '#9b59b6', effect: 'Интуиция, духовность', type: 'Интуитивная, мистическая' },
+            8: { color: 'ПУРПУРНЫЙ', hex: '#8e44ad', effect: 'Власть, трансформация, магия', type: 'Трансформирующая, мощная' },
+            9: { color: 'ИНДИГО', hex: '#34495e', effect: 'Мудрость, знание, видение', type: 'Проникающая, всевидящая' },
+            10: { color: 'ЗОЛОТОЙ', hex: '#f39c12', effect: 'Изобилие, успех', type: 'Изобильная, притягивающая' },
+            11: { color: 'СЕРЕБРЯНЫЙ', hex: '#95a5a6', effect: 'Интуиция, луна, женская сила', type: 'Рецептивная, чувствительная' },
+            12: { color: 'БЕЛЫЙ', hex: '#ecf0f1', effect: 'Чистота, целостность, единство', type: 'Универсальная, всеобъемлющая' }
+        };
+
+        // Описания Частоты Имени
+        const nameFreqDescriptions = {
+            1: { name: 'ЛИДЕР', sound: 'ОМ'},
+            2: { name: 'ДИПЛОМАТ', sound: 'АУМ'},
+            3: { name: 'ТВОРЕЦ', sound: 'ХУМ'},
+            4: { name: 'СТРОИТЕЛЬ', sound: 'ЛАМ'},
+            5: { name: 'ТРАНСФОРМАТОР', sound: 'ВАМ'},
+            6: { name: 'ЦЕЛИТЕЛЬ', sound: 'ЯМ'},
+            7: { name: 'МИСТИК', sound: 'ХАМ'},
+            8: { name: 'МАСТЕР', sound: 'СО-ХАМ'},
+            9: { name: 'МУДРЕЦ', sound: 'ОМ-АХ-ХУМ'}
+        };
+
+        // Описания сторон света
+        const directionDescriptions = {
+            0: { name: 'СЕВЕР', emoji: '⬆️', energy: 'Мудрость, глубина, тайна', type: 'Глубокая, медитативная' },
+            1: { name: 'ВОСТОК', emoji: '➡️', energy: 'Новые начинания, рассвет', type: 'Энергичная, инициирующая' },
+            2: { name: 'ЮГ', emoji: '⬇️', energy: 'Страсть, эмоции, тепло', type: 'Страстная, эмоциональная' },
+            3: { name: 'ЗАПАД', emoji: '⬅️', energy: 'Завершение, закат, мудрость', type: 'Рефлексивная, завершающая' }
+        };
+
+        // Стихии
+        const elementDescriptions = {
+            0: {name: 'ЗЕМЛЯ', emoji: '🌍', strategy: 'Устойчивая концентрация 3-4 часа'},
+            1: {name: 'ОГОНЬ', emoji: '🔥', strategy: 'Взрывная концентрация 30-60 мин'},
+            2: {name: 'ВОДА', emoji: '💧', strategy: 'Текучая концентрация 1-2 часа'},
+            3: {name: 'ВОЗДУХ', emoji: '💨', strategy: 'Многозадачная концентрация'}
+        };
+
+        function sumDigits(num) {
+            let total = 0;
+            while (num > 0) {
+                total += num % 10;
+                num = Math.floor(num / 10);
+            }
+            return total;
+        }
+
+        function reduceToSingleDigit(num) {
+            while (num > 9) {
+                num = sumDigits(num);
+            }
+            return num;
+        }
+
+        function calculateNameFrequency(name) {
+            let total = 0;
+            name = name.toUpperCase().replace(/[^А-ЯЁ]/g, '');
+            for (let letter of name) {
+                total += letterValues[letter] || 0;
+            }
+            return reduceToSingleDigit(total);
+        }
+
+        function toggleAccordion(element) {
+            const content = element.nextElementSibling;
+            const icon = element.querySelector('.expand-icon');
+            
+            content.classList.toggle('active');
+            icon.classList.toggle('rotated');
+        }
+
+        function expandAll() {
+            document.querySelectorAll('.accordion-content').forEach(el => el.classList.add('active'));
+            document.querySelectorAll('.expand-icon').forEach(el => el.classList.add('rotated'));
+        }
+
+        function collapseAll() {
+            document.querySelectorAll('.accordion-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.expand-icon').forEach(el => el.classList.remove('rotated'));
+        }
+
+        function calculate() {
+            const name = document.getElementById('name').value.trim();
+            const day = parseInt(document.getElementById('day').value);
+            const month = parseInt(document.getElementById('month').value);
+            const year = parseInt(document.getElementById('year').value);
+
+            if (!name || !day || !month || !year) {
+                alert('Пожалуйста, заполните все поля!');
+                return;
+            }
+
+            if (day < 1 || day > 31 || month < 1 || month > 12 || year < 1900 || year > 2024) {
+                alert('Пожалуйста, введите корректную дату!');
+                return;
+            }
+
+            // Расчет всех параметров
+            const dateString = `${day}.${month < 10 ? '0' + month : month}.${year}`;
+            const allDigitsSum = sumDigits(day) + sumDigits(month) + sumDigits(year);
+            
+            const pkk = reduceToSingleDigit(allDigitsSum);
+            const chg = 40 + allDigitsSum;
+            const sff = year % 10;
+            const hoursStart = (day * 2) % 24;
+            const hoursSecondary = (hoursStart + 12) % 24;
+            const cf = month;
+            const nameFreq = calculateNameFrequency(name);
+            const direction = allDigitsSum % 4;
+            const element = day % 4;
+            const rhythm = month * 5;
+
+            displayResults(name, dateString, pkk, chg, sff, hoursStart, hoursSecondary, cf, nameFreq, direction, element, rhythm);
+        }
+
+        function displayResults(name, date, pkk, chg, sff, hours1, hours2, cf, nameFreq, direction, element, rhythm) {
+            document.getElementById('formSection').style.display = 'none';
+            document.getElementById('results').classList.add('active');
+
+            document.getElementById('personalInfo').innerHTML = `
+                <h2>${name}</h2>
+                <p>Дата рождения: ${date}</p>
+            `;
+
+            const pkkData = pkkDescriptions[pkk];
+            const sffData = formDescriptions[sff];
+            const cfData = colorDescriptions[cf];
+            const nameData = nameFreqDescriptions[nameFreq];
+            const dirData = directionDescriptions[direction];
+            const elemData = elementDescriptions[element];
+
+            document.getElementById('resultsContainer').innerHTML = `
+                <!-- ШПАРГАЛКА -->
+                <div class="cheatsheet">
+<strong>📋 ВАША БЫСТРАЯ ШПАРГАЛКА</strong>
+
+🎯 Код: ${pkk} (${pkkData.name})
+⚡ Частота: ${chg} Гц  
+🔷 Форма: ${sffData.name}
+⏰ Часы силы: ${hours1}:00-${hours1+2}:00
+🎨 Цвет работы: ${cfData.color}
+🔴 Цвет энергии: ${pkkData.color}
+🔊 Звук: ${nameData.sound}
+🧭 Направление: ${dirData.name}
+#️⃣ Число: ${pkk}
+${elemData.emoji} Стихия: ${elemData.name}
+⏱ Ритм: ${rhythm} мин / 5 мин
+
+МАНТРА: "${pkkData.action}"
+                </div>
+
+                <!-- КНОПКИ УПРАВЛЕНИЯ -->
+                <div class="controls-bar">
+                    <button class="expand-all-btn" onclick="expandAll()">📖 Развернуть всё</button>
+                    <button class="expand-all-btn" onclick="collapseAll()">📕 Свернуть всё</button>
+                </div>
+
+                <!-- ПКК -->
+                <div class="accordion-item">
+                    <div class="result-card code-${pkk} accordion-header" onclick="toggleAccordion(this)">
+                        <div class="result-header">
+                            <div class="result-title">🎯 Персональный Квантовый Код (ПКК) <span class="expand-icon">▼</span></div>
+                            <div class="result-value">${pkk}</div>
+                        </div>
+                        <div class="result-description">
+                            <strong>${pkkData.name}</strong> - ${pkkData.action}
+                        </div>
+                        <div class="result-meta">
+                            <div class="meta-item">
+                                <div class="meta-label">Частота</div>
+                                <div class="meta-value">${pkkData.freq}</div>
+                            </div>
+                            <div class="meta-item">
+                                <div class="meta-label">Мантра</div>
+                                <div class="meta-value">${pkkData.mantra}</div>
+                            </div>
+                            <div class="meta-item">
+                                <div class="meta-label">Цвет</div>
+                                <div class="meta-value">${pkkData.color}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="result-card code-${pkk}">
+                            <div class="details-section">
+                                <div class="actions-section">
+                                    <div class="actions-title">✅ КОНКРЕТНЫЕ ДЕЙСТВИЯ:</div>
+                                    <ul class="actions-list">
+                                        <li>Каждое утро произносите мантру "${pkkData.mantra}" 3 раза</li>
+                                        <li>Носите что-то ${pkk === 1 ? 'красное' : pkk === 2 ? 'оранжевое' : pkk === 3 ? 'жёлтое' : pkk === 4 ? 'зелёное' : pkk === 5 ? 'голубое' : pkk === 6 ? 'синее' : pkk === 7 ? 'фиолетовое' : pkk === 8 ? 'чёрное или золотое' : 'белое'} (одежда, браслет, аксессуар)</li>
+                                        <li>Перед важной задачей: "Я ${pkkData.name}. ${pkkData.action}"</li>
+                                        <li>Включайте частоту ${pkkData.freq} фоном во время работы</li>
+                                        <li>Визуализируйте ${pkk === 1 ? 'красный' : pkk === 2 ? 'оранжевый' : pkk === 3 ? 'жёлтый' : pkk === 4 ? 'зелёный' : pkk === 5 ? 'голубой' : pkk === 6 ? 'синий' : pkk === 7 ? 'фиолетовый' : pkk === 8 ? 'чёрный/золотой' : 'белый'} свет вокруг себя</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ЧГ -->
+                <div class="accordion-item">
+                    <div class="result-card code-3 accordion-header" onclick="toggleAccordion(this)">
+                        <div class="result-header">
+                            <div class="result-title">⚡ Частота Гениальности <span class="expand-icon">▼</span></div>
+                            <div class="result-value">${chg} Гц</div>
+                        </div>
+                        <div class="result-description">
+                            Ваша уникальная частота для максимальной эффективности мозга
+                        </div>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="result-card code-3">
+                            <div class="details-section">
+                                <div class="actions-section">
+                                    <div class="actions-title">✅ КАК ИСПОЛЬЗОВАТЬ:</div>
+                                    <ul class="actions-list">
+                                        <li>Найдите на YouTube "${chg} Hz" или "Binaural Beats ${chg} Hz"</li>
+                                        <li>Включайте ФОНОМ во время важной работы (тихая громкость)</li>
+                                        <li>Перед началом: "Мой мозг настраивается на ${chg} Гц. Сейчас."</li>
+                                        <li>Закройте глаза на 30 секунд, представьте волну</li>
+                                        <li>Мозг войдет в РЕЗОНАНС - мышление станет яснее</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- СФФ -->
+                <div class="accordion-item">
+                    <div class="result-card code-5 accordion-header" onclick="toggleAccordion(this)">
+                        <div class="result-header">
+                            <div class="result-title">🔷 Священная Форма Фокуса <span class="expand-icon">▼</span></div>
+                            <div class="result-value">${sff} - ${sffData.name}</div>
+                        </div>
+                        <div class="result-description">
+                            ${sffData.power}
+                        </div>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="result-card code-5">
+                            <div class="details-section">
+                                <div class="result-meta">
+                                    <div class="meta-item">
+                                        <div class="meta-label">Тип концентрации</div>
+                                        <div class="meta-value">${sffData.type}</div>
+                                    </div>
+                                    <div class="meta-item">
+                                        <div class="meta-label">Применение</div>
+                                        <div class="meta-value">${sffData.use}</div>
+                                    </div>
+                                </div>
+                                <div class="actions-section">
+                                    <div class="actions-title">✅ ТЕХНИКА АКТИВАЦИИ:</div>
+                                    <ul class="actions-list">
+                                        <li>Нарисуйте "${sffData.name}" на бумаге перед работой</li>
+                                        <li>Или найдите изображение, поставьте на стол</li>
+                                        <li>Смотрите на неё 1 минуту перед началом</li>
+                                        <li>Форма активирует ваш тип мышления</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ЧС -->
+                <div class="accordion-item">
+                    <div class="result-card code-6 accordion-header" onclick="toggleAccordion(this)">
+                        <div class="result-header">
+                            <div class="result-title">⏰ Часы Силы <span class="expand-icon">▼</span></div>
+                            <div class="result-value">${hours1}:00-${hours1+2}:00</div>
+                        </div>
+                        <div class="result-description">
+                            ПЕРВИЧНОЕ окно максимальной концентрации. За 2 часа сделаете как за 8!
+                        </div>
+                        <div class="result-meta">
+                            <div class="meta-item">
+                                <div class="meta-label">Вторичное окно</div>
+                                <div class="meta-value">${hours2}:00-${hours2+2}:00</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="result-card code-6">
+                            <div class="details-section">
+                                <div class="tip-box">
+                                    <strong>🎯 В ЧАСЫ СИЛЫ ДЕЛАЙТЕ:</strong><br>
+                                    • Сложные проекты • Творческую работу • Обучение • Принятие решений
+                                </div>
+                                <div class="warning-box">
+                                    <strong>❌ НЕ ТРАТЬТЕ НА:</strong><br>
+                                    • Email и соцсети • Рутину • Встречи • Звонки
+                                </div>
+                                <div class="actions-section">
+                                    <div class="actions-title">✅ ПОДГОТОВКА:</div>
+                                    <ul class="actions-list">
+                                        <li>За 15 минут (${hours1-1}:45) - отключите телефон</li>
+                                        <li>Закройте все лишние вкладки и программы</li>
+                                        <li>В ${hours1}:00 ТОЧНО - начинайте главную задачу</li>
+                                        <li>Работайте 2 часа БЕЗ ПЕРЕРЫВОВ</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ЦФ -->
+                <div class="accordion-item">
+                    <div class="result-card code-7 accordion-header" onclick="toggleAccordion(this)">
+                        <div class="result-header">
+                            <div class="result-title">🎨 Цвет Фокуса <span class="expand-icon">▼</span></div>
+                            <div class="result-value">${cfData.color} <span class="color-preview" style="background: ${cfData.hex}"></span></div>
+                        </div>
+                        <div class="result-description">
+                            ${cfData.effect} • ${cfData.type}
+                        </div>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="result-card code-7">
+                            <div class="details-section">
+                                <div class="actions-section">
+                                    <div class="actions-title">✅ МЕТОД "ЦВЕТОВАЯ АКТИВАЦИЯ":</div>
+                                    <ul class="actions-list">
+                                        <li>Носите ${cf === 1 ? 'красную' : cf === 2 ? 'оранжевую' : cf === 3 ? 'жёлтую' : cf === 4 ? 'зелёную' : cf === 5 ? 'бирюзовую' : cf === 6 ? 'голубую' : cf === 7 ? 'фиолетовую' : cf === 8 ? 'пурпурную' : cf === 9 ? 'индиго' : cf === 10 ? 'золотую' : cf === 11 ? 'серебряную' : 'белую'} одежду во время работы</li>
+                                        <li>Поставьте ${cf === 1 ? 'красный' : cf === 2 ? 'оранжевый' : cf === 3 ? 'жёлтый' : cf === 4 ? 'зелёный' : cf === 5 ? 'бирюзовый' : cf === 6 ? 'голубой' : cf === 7 ? 'фиолетовый' : cf === 8 ? 'пурпурный' : cf === 9 ? 'индиго' : cf === 10 ? 'золотой' : cf === 11 ? 'серебряный' : 'белый'} предмет на стол</li>
+                                        <li>Сделайте фон экрана ${cf === 1 ? 'красным' : cf === 2 ? 'оранжевым' : cf === 3 ? 'жёлтым' : cf === 4 ? 'зелёным' : cf === 5 ? 'бирюзовым' : cf === 6 ? 'голубым' : cf === 7 ? 'фиолетовым' : cf === 8 ? 'пурпурным' : cf === 9 ? 'индиго' : cf === 10 ? 'золотым' : cf === 11 ? 'серебряным' : 'белым'}</li>
+                                        <li>Представьте ${cf === 1 ? 'красный' : cf === 2 ? 'оранжевый' : cf === 3 ? 'жёлтый' : cf === 4 ? 'зелёный' : cf === 5 ? 'бирюзовый' : cf === 6 ? 'голубой' : cf === 7 ? 'фиолетовый' : cf === 8 ? 'пурпурный' : cf === 9 ? 'индиго' : cf === 10 ? 'золотой' : cf === 11 ? 'серебряный' : 'белый'} свет вокруг</li>
+                                        <li>"Я активирую ${cfData.color}. Концентрация усиливается. Сейчас."</li>
+                                        <li><strong>Эффект: усиление концентрации на 30-50%</strong></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ЧИ -->
+                <div class="accordion-item">
+                    <div class="result-card code-4 accordion-header" onclick="toggleAccordion(this)">
+                        <div class="result-header">
+                            <div class="result-title">🔊 Частота Имени <span class="expand-icon">▼</span></div>
+                            <div class="result-value">${nameFreq} - ${nameData.name}</div>
+                        </div>
+                        <div class="result-description">
+                            Звук активации: <strong>${nameData.sound}</strong>
+                        </div>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="result-card code-4">
+                            <div class="details-section">
+                                <div class="actions-section">
+                                    <div class="actions-title">✅ МЕТОД "ЗВУКОВАЯ АКТИВАЦИЯ":</div>
+                                    <ul class="actions-list">
+                                        <li>Произносите "${nameData.sound}" 3 РАЗА перед работой</li>
+                                        <li>Вслух или про себя - почувствуйте вибрацию</li>
+                                        <li>Повторяйте когда нужна энергия</li>
+                                        <li>Звук работает как КЛЮЧ к вашей частоте</li>
+                                        <li>Энергия взлетает, концентрация восстанавливается</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- СС -->
+                <div class="accordion-item">
+                    <div class="result-card code-8 accordion-header" onclick="toggleAccordion(this)">
+                        <div class="result-header">
+                            <div class="result-title">🧭 Сторона Силы <span class="expand-icon">▼</span></div>
+                            <div class="result-value">${dirData.emoji} ${dirData.name}</div>
+                        </div>
+                        <div class="result-description">
+                            ${dirData.energy} • ${dirData.type}
+                        </div>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="result-card code-8">
+                            <div class="details-section">
+                                <div class="actions-section">
+                                    <div class="actions-title">✅ ПРОСТРАНСТВЕННОЕ ВЫРАВНИВАНИЕ:</div>
+                                    <ul class="actions-list">
+                                        <li>Используйте КОМПАС на телефоне</li>
+                                        <li>Сидите ЛИЦОМ на ${dirData.name.toUpperCase()}</li>
+                                        <li>Это КРИТИЧЕСКИ важно!</li>
+                                        <li>"Я выравниваюсь с ${dirData.name}. Энергия наполняет. Сейчас."</li>
+                                        <li><strong>Усиление на 40-60%</strong></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Число Фокуса -->
+                <div class="accordion-item">
+                    <div class="result-card code-2 accordion-header" onclick="toggleAccordion(this)">
+                        <div class="result-header">
+                            <div class="result-title">#️⃣ Число Фокуса <span class="expand-icon">▼</span></div>
+                            <div class="result-value">${pkk}</div>
+                        </div>
+                        <div class="result-description">
+                            Ваш числовой якорь для концентрации
+                        </div>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="result-card code-2">
+                            <div class="details-section">
+                                <div class="actions-section">
+                                    <div class="actions-title">✅ РИТУАЛ АКТИВАЦИИ:</div>
+                                    <ul class="actions-list">
+                                        <li>Напишите цифру "${pkk}" КРУПНО на бумаге</li>
+                                        <li>Положите перед собой на стол</li>
+                                        <li>Когда концентрация падает - СМОТРИТЕ на неё</li>
+                                        <li>Число = ЯКОРЬ для подсознания</li>
+                                        <li>Концентрация восстанавливается автоматически</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Стихия -->
+                <div class="accordion-item">
+                    <div class="result-card code-4 accordion-header" onclick="toggleAccordion(this)">
+                        <div class="result-header">
+                            <div class="result-title">${elemData.emoji} Стихия Силы <span class="expand-icon">▼</span></div>
+                            <div class="result-value">${elemData.name}</div>
+                        </div>
+                        <div class="result-description">
+                            ${elemData.strategy}
+                        </div>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="result-card code-4">
+                            <div class="details-section">
+                                <div class="actions-section">
+                                    <div class="actions-title">✅ СТРАТЕГИЯ УСИЛЕНИЯ:</div>
+                                    <ul class="actions-list">
+                                        ${element === 0 ? `
+                                            <li>Работайте с босыми ногами на полу (контакт с землёй)</li>
+                                            <li>Камень/кристалл на стол</li>
+                                            <li>Плотная еда перед работой (орехи, зерновые)</li>
+                                            <li>Работайте ДЛИННЫМИ сессиями 2-4 часа</li>
+                                        ` : element === 1 ? `
+                                            <li>Яркий свет (или у окна с солнцем)</li>
+                                            <li>Зажгите свечу на столе</li>
+                                            <li>Короткие перерывы с движением</li>
+                                            <li>Интенсивные спринты 30-60 минут</li>
+                                        ` : element === 2 ? `
+                                            <li>Стакан воды на столе, пейте часто</li>
+                                            <li>Звуки воды фоном (дождь, ручей)</li>
+                                            <li>Эмоциональная настройка перед работой</li>
+                                            <li>Работайте в потоке 1-2 часа</li>
+                                        ` : `
+                                            <li>Работайте у открытого окна (свежий воздух)</li>
+                                            <li>3 глубоких вдоха перед работой</li>
+                                            <li>Лёгкий ветерок (вентилятор)</li>
+                                            <li>Можете работать многозадачно</li>
+                                        `}
+                                        <li>"Я активирую ${elemData.name}. Работа естественна. Сейчас."</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ритм -->
+                <div class="accordion-item">
+                    <div class="result-card code-5 accordion-header" onclick="toggleAccordion(this)">
+                        <div class="result-header">
+                            <div class="result-title">⏱ Ритм Концентрации <span class="expand-icon">▼</span></div>
+                            <div class="result-value">${rhythm} мин</div>
+                        </div>
+                        <div class="result-description">
+                            Ваш цикл: ${rhythm} мин работа → 5-10 мин отдых
+                        </div>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="result-card code-5">
+                            <div class="details-section">
+                                <div class="tip-box">
+                                    <strong>⏰ РАСПИСАНИЕ:</strong><br>
+                                    ${hours1}:00-${hours1}:${rhythm} → Работа<br>
+                                    ${hours1}:${rhythm}-${hours1}:${rhythm+5} → Отдых<br>
+                                    И так далее...
+                                </div>
+                                <div class="actions-section">
+                                    <div class="actions-title">✅ РИТМИЧЕСКАЯ СИНХРОНИЗАЦИЯ:</div>
+                                    <ul class="actions-list">
+                                        <li>ТАЙМЕР на ${rhythm} минут</li>
+                                        <li>РАБОТА: полная концентрация, никаких отвлечений</li>
+                                        <li>ОТДЫХ: встать, вода, окно (НЕ соцсети!)</li>
+                                        <li>СТРОГО следуйте ритму</li>
+                                        <li><strong>Эффект: производительность × 2-3</strong></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ЕЖЕДНЕВНЫЙ РИТУАЛ -->
+                <div class="ritual-section">
+                    <h2>🚀 ВАШ ЕЖЕДНЕВНЫЙ РИТУАЛ</h2>
+                    
+                    <div class="ritual-step">
+                        <h3>🌅 УТРОМ:</h3>
+                        1. Произнесите "${pkkData.mantra}" 3 раза<br>
+                        2. Оденьте ${pkk === 1 ? 'красное' : pkk === 2 ? 'оранжевое' : pkk === 3 ? 'жёлтое' : pkk === 4 ? 'зелёное' : pkk === 5 ? 'голубое' : pkk === 6 ? 'синее' : pkk === 7 ? 'фиолетовое' : pkk === 8 ? 'чёрное' : 'белое'} + ${cf === 1 ? 'красное' : cf === 2 ? 'оранжевое' : cf === 3 ? 'жёлтое' : cf === 4 ? 'зелёное' : cf === 5 ? 'бирюзовое' : cf === 6 ? 'голубое' : cf === 7 ? 'фиолетовое' : cf === 8 ? 'пурпурное' : cf === 9 ? 'индиго' : cf === 10 ? 'золотое' : cf === 11 ? 'серебряное' : 'белое'}<br>
+                        3. Подготовьте стол: цифра "${pkk}", ${cf === 1 ? 'красный' : cf === 2 ? 'оранжевый' : cf === 3 ? 'жёлтый' : cf === 4 ? 'зелёный' : cf === 5 ? 'бирюзовый' : cf === 6 ? 'голубой' : cf === 7 ? 'фиолетовый' : cf === 8 ? 'пурпурный' : cf === 9 ? 'индиго' : cf === 10 ? 'золотой' : cf === 11 ? 'серебряный' : 'белый'} предмет, ${element === 0 ? 'камень' : element === 1 ? 'свеча' : element === 2 ? 'вода' : 'окно'}<br>
+                        4. Разверните стол лицом на ${dirData.name.toUpperCase()}
+                    </div>
+
+                    <div class="ritual-step">
+                        <h3>💼 ПЕРЕД РАБОТОЙ (${hours1-1}:45):</h3>
+                        1. Отключите телефон<br>
+                        2. Включите ${chg} Гц фоном<br>
+                        3. Произнесите "${nameData.sound}" 3 раза<br>
+                        4. Посмотрите на "${pkk}"<br>
+                        5. "Я ${pkkData.name}. Частота ${chg} Гц. Лицом на ${dirData.name}. СЕЙЧАС!"
+                    </div>
+
+                    <div class="ritual-step">
+                        <h3>⚡ РАБОТА (${hours1}:00-${hours1+2}:00):</h3>
+                        Таймер ${rhythm} мин → работа → отдых 5 мин → повтор
+                    </div>
+                </div>
+
+                <!-- ФИНАЛЬНЫЕ СОВЕТЫ -->
+                <div class="tip-box">
+                    <strong>💡 ВАЖНО:</strong><br>
+                    • Начните с Часов Силы (${hours1}:00-${hours1+2}:00) и Ритма (${rhythm} мин)<br>
+                    • Первые изменения - через 3 дня<br>
+                    • Полный эффект - через 21 день<br>
+                    • Самое главное: ${hours1}:00-${hours1+2}:00 это СВЯТОЕ время!
+                </div>
+            `;
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function restart() {
+            document.getElementById('formSection').style.display = 'block';
+            document.getElementById('results').classList.remove('active');
+            document.getElementById('name').value = '';
+            document.getElementById('day').value = '';
+            document.getElementById('month').value = '';
+            document.getElementById('year').value = '';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
